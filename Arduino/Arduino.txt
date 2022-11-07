@@ -32,17 +32,17 @@ void setup(){
 void loop(){ 
   long distance = 0;
 
+  //초기 거리 측정
   if(initial){
-    //초기 거리 측정
-    initialDistance = getDistance(true);
+    do{
+      initialDistance = getDistance(true);
+    }while(initialDistance < 1)
+
+    digitalWrite(lvSensor, LOW);
+    initial = false;
   
     Serial.print("Initial Distance: ");
     Serial.println(initialDistance);
-
-    if(initialDistance > 0){
-      digitalWrite(lvSensor, LOW);
-      initial = false;
-    }
   }
 
   if(isWater){
