@@ -9,7 +9,6 @@ short const rainSensor = 9;
 
 //변수
 bool isWater = false;
-bool initial = true;
 long initialDistance;
 
 void setup(){
@@ -22,28 +21,23 @@ void setup(){
   pinMode(lvSensor, OUTPUT);
   pinMode(rainSensor, OUTPUT);
 
-
-
-  //빗물 센서 전원 공급
+  //전원 공급
   digitalWrite(rainSensor, HIGH);
   digitalWrite(lvSensor, HIGH);
+
+  //초기 거리 측정
+  do{
+    initialDistance = getDistance(true);
+  }while(initialDistance < 1)
+
+  digitalWrite(lvSensor, LOW);
+  
+  Serial.print("Initial Distance: ");
+  Serial.println(initialDistance);
 } 
 
 void loop(){ 
   long distance = 0;
-
-  //초기 거리 측정
-  if(initial){
-    do{
-      initialDistance = getDistance(true);
-    }while(initialDistance < 1)
-
-    digitalWrite(lvSensor, LOW);
-    initial = false;
-  
-    Serial.print("Initial Distance: ");
-    Serial.println(initialDistance);
-  }
 
   if(isWater){
     distance = getDistance(false);
