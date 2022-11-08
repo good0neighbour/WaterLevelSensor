@@ -1,3 +1,4 @@
+/* 상수 설정 */
 //입출력
 short const trig = 2;
 short const echo = 3;
@@ -7,10 +8,16 @@ short const rainingPin = A1;
 short const lvSensor = 8;
 short const rainSensor = 9;
 
-//변수
+//반복 속도
+short const loopDelay = 500;
+
+
+/* 변수 선언 */
 bool isWater = false;
 long initialDistance;
 
+
+/* 초기화 함수 */
 void setup(){
   //초기화
   Serial.begin(9600); 
@@ -27,55 +34,61 @@ void setup(){
 
   //초기 거리 측정
   do{
+    delay(loopDelay);
     initialDistance = getDistance(true);
   }while(initialDistance < 1)
-
   digitalWrite(lvSensor, LOW);
-  
+
+  //초기 거리 출력
   Serial.print("Initial Distance: ");
   Serial.println(initialDistance);
 } 
 
+
+/* 반복 함수 */
 void loop(){ 
   long distance = 0;
 
+  //반복 속도 조절
+  delay(loopDelay);
+
+  //수위 및 물 감지
   if(isWater){
     distance = getDistance(false);
+    Serial.print("\nWater detected : ");
+    Serial.print(isWater);
+    return;
   }
   else{
     isWater = waterDetect();
   }
 
-  //출력
+  //정보 전송
   sendData(distance);
-
-  //인출속도 조절
-  delay(500);
 }
 
+
+/* 정보 전송 */
 void sendData(long level){
-  Serial.print("Water detected : ");
-  Serial.print(isWater);
   Serial.print("\ndistance : ");
   Serial.print(level);
   Serial.print("cm");
-  Serial.print("\n");
 }
 
+
+/* 수위 측정 */
 long getDistance(bool initial){
-  //송수신 실수변수 지정
   unsigned long duration;
 
-  //센서에 전기신호 준 후 전압을 가하지 않은 상태로 전환
+  //초음파 발생
   digitalWrite(trig, HIGH);
   delay(500);
   digitalWrite(trig, LOW);
 
-  //시간을 duration 변수에 저장
+  //시간을 duration에 저장
   duration = pulseIn(echo, HIGH);
-  Serial.println(duration);
 
-  //duration 변수를 cm로 표현
+  //반환
   if(initial){
     return (long)(duration * 0.017);
   }
@@ -84,8 +97,10 @@ long getDistance(bool initial){
   }
 }
 
+
+/* 물 감지 */
 bool waterDetect(){
-  if (analogRead(rainingPin)< 500){
+  if (analogRead(rainingPin) < 500){
     digitalWrite(rainSensor, LOW);
     digitalWrite(lvSensor, HIGH);
     return true;
