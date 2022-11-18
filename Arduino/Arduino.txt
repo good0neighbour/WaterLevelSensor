@@ -1,5 +1,9 @@
+#include <SoftwareSerial.h>
+
 /* 상수 설정 */
 //입출력
+#define BT_RXD 4
+#define BT_TXD 5
 short const trig = 2;
 short const echo = 3;
 short const rainingPin = A1;
@@ -15,12 +19,13 @@ short const loopDelay = 500;
 /* 변수 선언 */
 bool isWater = false;
 long initialDistance;
+SoftwareSerial ESP_wifi(BT_RXD, BT_TXD);
 
 
 /* 초기화 함수 */
 void setup(){
   //초기화
-  Serial.begin(9600); 
+  Serial.begin(9600);
   pinMode(trig, OUTPUT);
   pinMode(echo, INPUT);
 
@@ -28,25 +33,29 @@ void setup(){
   pinMode(lvSensor, OUTPUT);
   pinMode(rainSensor, OUTPUT);
 
-  //전원 공급
-  digitalWrite(rainSensor, HIGH);
-  digitalWrite(lvSensor, HIGH);
-
   //초기 거리 측정
+  digitalWrite(lvSensor, HIGH);
   do{
     delay(loopDelay);
     initialDistance = getDistance(true);
-  }while(initialDistance < 1)
+  }while(initialDistance < 1);
   digitalWrite(lvSensor, LOW);
+
+  //전원 공급
+  digitalWrite(rainSensor, HIGH);
 
   //초기 거리 출력
   Serial.print("Initial Distance: ");
   Serial.println(initialDistance);
-} 
+
+  //와이파이 모듈 초기화
+  ESP_wifi.begin(9600);
+  ESP_wifi.setTimeout(5000);
+}
 
 
 /* 반복 함수 */
-void loop(){ 
+void loop(){
   long distance = 0;
 
   //반복 속도 조절
@@ -57,10 +66,12 @@ void loop(){
     distance = getDistance(false);
     Serial.print("\nWater detected : ");
     Serial.print(isWater);
-    return;
+    wifi();
   }
   else{
     isWater = waterDetect();
+    Serial.println("not watwer");
+    return;
   }
 
   //정보 전송
@@ -107,5 +118,16 @@ bool waterDetect(){
   }
   else{
     return false;
+  }
+}
+
+
+/* 와이파이 */
+void wifi(){
+  if (Serial.available()){
+    ESP_wifi.write(Serial.read());
+  }
+  if (ESP_wifi.available()){
+    Serial.write(ESP_wifi.read());
   }
 }
