@@ -1,6 +1,6 @@
 #include <SoftwareSerial.h>
 
-/* 상수 설정 */
+/* ==================== 상수 설정 ==================== */
 //입출력
 #define BT_RXD 4
 #define BT_TXD 5
@@ -16,13 +16,13 @@ short const rainSensor = 9;
 short const loopDelay = 500;
 
 
-/* 변수 선언 */
+/* ==================== 변수 선언 ==================== */
 bool isWater = false;
 long initialDistance;
 SoftwareSerial ESP_wifi(BT_RXD, BT_TXD);
 
 
-/* 초기화 함수 */
+/* ==================== 초기화 함수 ==================== */
 void setup(){
   //초기화
   Serial.begin(9600);
@@ -54,7 +54,7 @@ void setup(){
 }
 
 
-/* 반복 함수 */
+/* ==================== 반복 함수 ==================== */
 void loop(){
   long distance = 0;
 
@@ -79,7 +79,7 @@ void loop(){
 }
 
 
-/* 정보 전송 */
+/* ==================== 정보 전송 ==================== */
 void sendData(long level){
   Serial.print("\ndistance : ");
   Serial.print(level);
@@ -87,7 +87,7 @@ void sendData(long level){
 }
 
 
-/* 수위 측정 */
+/* ==================== 수위 측정 ==================== */
 long getDistance(bool initial){
   unsigned long duration;
 
@@ -109,7 +109,7 @@ long getDistance(bool initial){
 }
 
 
-/* 물 감지 */
+/* ==================== 물 감지 ==================== */
 bool waterDetect(){
   if (analogRead(rainingPin) < 500){
     digitalWrite(rainSensor, LOW);
@@ -122,7 +122,7 @@ bool waterDetect(){
 }
 
 
-/* 와이파이 */
+/* ==================== 와이파이 ==================== */
 void wifi(){
   if (Serial.available()){
     ESP_wifi.write(Serial.read());
