@@ -1,8 +1,6 @@
 package com.example.userapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.Button;
@@ -17,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView waterLevel;
     private String newData = "0";
     private String currentData = "0";
+    private String levelText;
     private Mqtt5BlockingClient client;
     Handler handler = new Handler();
     private boolean running = true;
@@ -27,6 +26,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connect);
 
+        //연결 화면 초기화
+        ConnectScreenSetting();
+
+        //저장된 시리얼 번호가 있을 때
+        //if (false){
+        //    Connecting(statusText, serialText, currDevice);
+        //}
+    }
+
+    /**
+     * 연결 화면 초기화
+     */
+    private void ConnectScreenSetting(){
         //입력칸, 연결 버튼 찾기
         EditText serialText = findViewById(R.id.serialText);
         Button connectBtn = findViewById(R.id.connectBtn);
@@ -36,28 +48,22 @@ public class MainActivity extends AppCompatActivity {
         connectBtn.setOnClickListener(view -> {
             //입력한 시리얼 번호 가져오기
             String topic = serialText.getText().toString();
-            
+
             //시리얼 번호를 입력했을 경우
             if (topic.length() > 0) {
-                EditTextEnabling(serialText, false);
-                Connecting(statusText, serialText, topic);
+                Connecting(statusText, topic);
             }
             //시리얼 번호를 입력하지 않았을 경우
             else {
                 statusText.setText("제품 시리얼 번호를 입력하십시오.");
             }
         });
-
-        //저장된 시리얼 번호가 있을 때
-        //if (false){
-        //    Connecting(statusText, serialText, currDevice);
-        //}
     }
 
     /**
      * MQTT 연결
      */
-    private void Connecting(TextView statusText, EditText serialText, String topic){
+    private void Connecting(TextView statusText, String topic){
         try {
             //Mqtt 클라이언트 객체 생성
             client = MqttClient.builder()
@@ -87,7 +93,6 @@ public class MainActivity extends AppCompatActivity {
             MainScreen(topic);
         }
         catch (Exception e) {
-            EditTextEnabling(serialText, true);
             statusText.setText("연결 실패. 네트워크 상태 확인 요망.");
         }
     }
@@ -95,17 +100,28 @@ public class MainActivity extends AppCompatActivity {
     /**
      * 주 화면 불러오기
      */
-    @SuppressLint("SetTextI18n")
     private void MainScreen(String topic){
         //주 화면 불러오기
         setContentView(R.layout.activity_main);
 
         //시리얼 번호, 수위 표시용 텍스트 찾기
         TextView currDevice = findViewById(R.id.currDevice);
+        TextView backBtn = findViewById(R.id.backBtn);
         waterLevel = findViewById(R.id.waterLevel);
+        String deviceText = "제품 시리얼 번호와 일치하는지 확인 바랍니다.\n" + topic;
 
         //사용자가 입력한 시리얼 번호 표시
-        currDevice.setText("제품 시리얼 번호와 일치하는지 확인 바랍니다.\n" + topic);
+        currDevice.setText(deviceText);
+        
+        //뒤로 가기 버튼
+        backBtn.setOnClickListener(view -> {
+            running = false;
+            client.disconnect();
+            newData = "0";
+            currentData = "0";
+            setContentView(R.layout.activity_connect);
+            ConnectScreenSetting();
+        });
 
         //값 받았을 때
         client.toAsync().publishes(ALL, publish -> {
@@ -113,13 +129,16 @@ public class MainActivity extends AppCompatActivity {
             System.out.println(newData);
         });
 
+        //수위 표시 업데이트
+        running = true;
         Thread thread = new Thread(() -> {
             while (running){
                 try {
-                    if (newData != currentData){
+                    if (!newData.equals(currentData)){
                         currentData = newData;
+                        levelText = currentData + "cm";
                         handler.post(() -> {
-                            waterLevel.setText(currentData + "cm");
+                            waterLevel.setText(levelText);
                         });
                     }
                     Thread.sleep(1000);
@@ -129,17 +148,5 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         thread.start();
-    }
-
-    /**
-     * 입력칸 활성화 여부
-     * @param et 입력칸
-     * @param enable 활성화 여부
-     */
-    private void EditTextEnabling(EditText et, boolean enable){
-        et.setClickable(enable);
-        et.setEnabled(enable);
-        et.setFocusable(enable);
-        et.setFocusableInTouchMode(enable);
     }
 }
