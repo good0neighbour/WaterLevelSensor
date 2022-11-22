@@ -1,6 +1,7 @@
 package com.example.userapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.Button;
@@ -12,12 +13,12 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static com.hivemq.client.mqtt.MqttGlobalPublishFilter.ALL;
 
 public class MainActivity extends AppCompatActivity {
-    private TextView waterLevel;
+    public static String waterLevelText;
+    //public static String safetyLevelText;
+    private Mqtt5BlockingClient client;
+    private final Handler handler = new Handler();
     private String newData = "0";
     private String currentData = "0";
-    private String levelText;
-    private Mqtt5BlockingClient client;
-    Handler handler = new Handler();
     private boolean running = true;
 
     @Override
@@ -105,9 +106,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //시리얼 번호, 수위 표시용 텍스트 찾기
-        TextView currDevice = findViewById(R.id.currDevice);
         TextView backBtn = findViewById(R.id.backBtn);
-        waterLevel = findViewById(R.id.waterLevel);
+        TextView currDevice = findViewById(R.id.currDevice);
+        //TextView safetyLevel = findViewById(R.id.safetyLevel);
+        TextView waterLevel = findViewById(R.id.waterLevel);
+        Button currStatus = findViewById(R.id.currStatus);
+        Button addition = findViewById(R.id.addition);
+        Button information = findViewById(R.id.information);
         String deviceText = "제품 시리얼 번호와 일치하는지 확인 바랍니다.\n" + topic;
 
         //사용자가 입력한 시리얼 번호 표시
@@ -122,6 +127,21 @@ public class MainActivity extends AppCompatActivity {
             setContentView(R.layout.activity_connect);
             ConnectScreenSetting();
         });
+        
+        //현재상황 버튼
+        currStatus.setOnClickListener(
+            view -> startActivity(new Intent(MainActivity.this, CurrentStatus.class))
+        );
+        
+        //추가정보기입 버튼
+        addition.setOnClickListener(
+            view -> startActivity(new Intent(MainActivity.this, AdditionalInformation.class))
+        );
+
+        //기타정보 버튼
+        information.setOnClickListener(
+            view -> startActivity(new Intent(MainActivity.this, ExtraInformation.class))
+        );
 
         //값 받았을 때
         client.toAsync().publishes(ALL, publish -> {
@@ -136,10 +156,8 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     if (!newData.equals(currentData)){
                         currentData = newData;
-                        levelText = currentData + "cm";
-                        handler.post(() -> {
-                            waterLevel.setText(levelText);
-                        });
+                        waterLevelText = currentData + "cm";
+                        handler.post(() -> waterLevel.setText(waterLevelText));
                     }
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
