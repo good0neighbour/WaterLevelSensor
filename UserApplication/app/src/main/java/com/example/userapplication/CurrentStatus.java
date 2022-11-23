@@ -6,7 +6,7 @@ import android.os.Handler;
 import android.widget.TextView;
 
 public class CurrentStatus extends AppCompatActivity {
-    //private String currentSfLv;
+    private String currentSfLv;
     private String currentWtLv;
     private final Handler handler = new Handler();
     private boolean running;
@@ -16,7 +16,7 @@ public class CurrentStatus extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_current_status);
 
-        //TextView safetyLevel = findViewById(R.id.safetyLevel);
+        TextView safetyLevel = findViewById(R.id.safetyLevel);
         TextView waterLevel = findViewById(R.id.waterLevel);
 
         //수위 표시 업데이트
@@ -28,10 +28,10 @@ public class CurrentStatus extends AppCompatActivity {
                         currentWtLv = MainActivity.waterLevelText;
                         handler.post(() -> {
                             waterLevel.setText(currentWtLv);
-                            //if (!MainActivity.safetyLevelText.equals(currentSfLv)){
-                            //    currentSfLv = MainActivity.safetyLevelText;
-                            //    safetyLevel.setText(currentSfLv);
-                            //}
+                            if (!MainActivity.safetyLevelText.equals(currentSfLv)){
+                                currentSfLv = MainActivity.safetyLevelText;
+                                safetyLevel.setText(currentSfLv);
+                            }
                         });
                     }
                     Thread.sleep(1000);

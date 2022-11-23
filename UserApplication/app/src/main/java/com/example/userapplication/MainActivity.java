@@ -13,12 +13,12 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static com.hivemq.client.mqtt.MqttGlobalPublishFilter.ALL;
 
 public class MainActivity extends AppCompatActivity {
-    public static String waterLevelText;
-    //public static String safetyLevelText;
+    public static String waterLevelText = "0cm";
+    public static String safetyLevelText = "안전";
     private Mqtt5BlockingClient client;
     private final Handler handler = new Handler();
     private String newData = "0";
-    private String currentData = "0";
+    private String currentData = "-1";
     private boolean running = true;
 
     @Override
@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
             //시리얼 번호를 입력했을 경우
             if (topic.length() > 0) {
+                statusText.setText("연결 중.");
                 Connecting(statusText, topic);
             }
             //시리얼 번호를 입력하지 않았을 경우
@@ -66,32 +67,34 @@ public class MainActivity extends AppCompatActivity {
      */
     private void Connecting(TextView statusText, String topic){
         try {
-            //Mqtt 클라이언트 객체 생성
-            client = MqttClient.builder()
-                    .useMqttVersion5()
-                    .serverHost("aef73941920445ed92ff3ff57355d371.s2.eu.hivemq.cloud")
-                    .serverPort(8883)
-                    .sslWithDefaultConfig()
-                    .buildBlocking();
+            handler.postDelayed(() -> {
+                //Mqtt 클라이언트 객체 생성
+                client = MqttClient.builder()
+                        .useMqttVersion5()
+                        .serverHost("1befe1d1899b49688347a6c39ec340ea.s2.eu.hivemq.cloud")
+                        .serverPort(8883)
+                        .sslWithDefaultConfig()
+                        .buildBlocking();
 
-            //HiveMQ Cloud 연결
-            client.connectWith()
-                    .simpleAuth()
-                    .username("good_neighbour")
-                    .password(UTF_8.encode(Constants.PASSWORD))
-                    .applySimpleAuth()
-                    .send();
+                //HiveMQ Cloud 연결
+                client.connectWith()
+                        .simpleAuth()
+                        .username("amor2022")
+                        .password(UTF_8.encode(Constants.PASSWORD))
+                        .applySimpleAuth()
+                        .send();
 
-            //구독
-            client.subscribeWith()
-                    .topicFilter("WtLvSn/" + topic)
-                    .send();
+                //구독
+                client.subscribeWith()
+                        .topicFilter(/*"WtLvSn/" + */topic)
+                        .send();
 
-            //상태 텍스트 초기화
-            statusText.setText(null);
-            
-            //주 화면으로 전환
-            MainScreen(topic);
+                //상태 텍스트 초기화
+                statusText.setText(null);
+
+                //주 화면으로 전환
+                MainScreen(topic);
+            }, 1000);
         }
         catch (Exception e) {
             statusText.setText("연결 실패. 네트워크 상태 확인 요망.");
@@ -108,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
         //시리얼 번호, 수위 표시용 텍스트 찾기
         TextView backBtn = findViewById(R.id.backBtn);
         TextView currDevice = findViewById(R.id.currDevice);
-        //TextView safetyLevel = findViewById(R.id.safetyLevel);
+        TextView safetyLevel = findViewById(R.id.safetyLevel);
         TextView waterLevel = findViewById(R.id.waterLevel);
         Button currStatus = findViewById(R.id.currStatus);
         Button addition = findViewById(R.id.addition);
@@ -123,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
             running = false;
             client.disconnect();
             newData = "0";
-            currentData = "0";
+            currentData = "-1";
             setContentView(R.layout.activity_connect);
             ConnectScreenSetting();
         });
@@ -146,7 +149,6 @@ public class MainActivity extends AppCompatActivity {
         //값 받았을 때
         client.toAsync().publishes(ALL, publish -> {
             newData = UTF_8.decode(publish.getPayload().get()).toString();
-            System.out.println(newData);
         });
 
         //수위 표시 업데이트
