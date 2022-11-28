@@ -8,39 +8,52 @@
     tools:context=".MainActivity">
 
     <EditText
-        android:id="@+id/serialText"
-        android:inputType="text"
+        android:id="@+id/userId"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginHorizontal="40dp"
-        android:backgroundTint="@color/white"
+        android:layout_marginHorizontal="50dp"
+        android:layout_marginTop="220dp"
         android:autofillHints="name"
-        android:hint="@string/serialText"
+        android:backgroundTint="@color/white"
+        android:hint="@string/userId"
+        android:inputType="text"
         android:textAlignment="center"
         android:textColor="@color/textColour"
         android:textColorHint="@color/textColour"
         android:textSize="30sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.494"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.42" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/passWord"
+        android:inputType="textPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginHorizontal="50dp"
+        android:layout_marginTop="20dp"
+        android:backgroundTint="@color/white"
+        android:autofillHints="password"
+        android:hint="@string/passWord"
+        android:textAlignment="center"
+        android:textColor="@color/textColour"
+        android:textColorHint="@color/textColour"
+        android:textSize="30sp"
+        app:layout_constraintTop_toBottomOf="@+id/userId" />
 
     <Button
         android:id="@+id/connectBtn"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_marginHorizontal="120dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="50dp"
         android:text="@string/connectBtn"
         android:textColor="@color/textColour"
         android:textSize="25sp"
         android:backgroundTint="@color/purple_200"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/serialText" />
+        app:layout_constraintTop_toBottomOf="@+id/passWord" />
 
     <TextView
         android:id="@+id/statusText"
