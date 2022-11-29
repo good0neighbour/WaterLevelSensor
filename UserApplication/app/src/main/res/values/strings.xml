@@ -9,12 +9,11 @@
 
     <!-- 주 화면 -->
     <string name="backBtn">←연결화면으로</string>
-    <string name="currDevice">제품 시리얼 번호와 일치한지 확인 바랍니다.\n</string>
-    <string name="currStatus">현재상황</string>
-    <string name="addition">추가정보기입</string>
-    <string name="safetyLevel">안전수준: </string>
-    <string name="waterLevel">현재수위: </string>
-    <string name="information">기타정보</string>
+    <string name="currStatus">안전진단</string>
+    <string name="curSfLv">현재 안전레벨: </string>
+    <string name="danArea">위험 구역: </string>
+    <string name="management">제품 관리</string>
+    <string name="additional">추가 정보</string>
 
     <!-- 현재상황 화면 -->
     <string name="recent">최근수위변화</string>
