@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import com.example.userapplication.database.DataBase;
+import com.example.userapplication.database.UserTable;
 import com.hivemq.client.mqtt.MqttClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -16,12 +17,10 @@ import java.util.LinkedList;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
+    public static short WaterLevel = 0;
     private final Handler handler = new Handler();
     private final LinkedList<Mqtt5BlockingClient> clients = new LinkedList<>();
-    public static String waterLevelText = "0cm";
-    public static String safetyLevelText = "안전";
-    private String newData = "0";
-    private String currentData = "-1";
+    private String currentUser;
     private boolean running = true;
 
     @Override
@@ -55,14 +54,14 @@ public class MainActivity extends AppCompatActivity {
         //버튼 클릭 시
         connectBtn.setOnClickListener(view -> {
             //사용자가 입력한 아이디
-            String idInput = userId.getText().toString();
+            currentUser = userId.getText().toString();
             
             //존재하는 아이디인 경우
-            if (DataBase.Users.containsKey(idInput)) {
+            if (DataBase.Users.containsKey(currentUser)) {
                 //비밀번호 일치할 경우
-                if (passWord.getText().toString().equals(Objects.requireNonNull(DataBase.Users.get(idInput)).Password)) {
+                if (passWord.getText().toString().equals(Objects.requireNonNull(DataBase.Users.get(currentUser)).Password)) {
                     statusText.setText("연결 중.");
-                    Connecting(statusText, Objects.requireNonNull(DataBase.Users.get(idInput)).Devices);
+                    Connecting(statusText, Objects.requireNonNull(DataBase.Users.get(currentUser)).Devices);
                 }
                 //비밀번호가 틀릴 경우
                 else {
@@ -125,24 +124,22 @@ public class MainActivity extends AppCompatActivity {
         //주 화면 불러오기
         setContentView(R.layout.activity_main);
 
-        //시리얼 번호, 수위 표시용 텍스트 찾기
+        //텍스트, 버튼 찾기
         TextView backBtn = findViewById(R.id.backBtn);
-        TextView currDevice = findViewById(R.id.currDevice);
-        TextView safetyLevel = findViewById(R.id.safetyLevel);
-        TextView waterLevel = findViewById(R.id.waterLevel);
+        TextView userTitle = findViewById(R.id.userTitle);
+        TextView curSfLv = findViewById(R.id.curSfLv);
+        TextView danArea = findViewById(R.id.danArea);
         Button currStatus = findViewById(R.id.currStatus);
-        Button addition = findViewById(R.id.addition);
-        Button information = findViewById(R.id.information);
-        String deviceText = "제품 시리얼 번호와 일치하는지 확인 바랍니다.\n" + topic;
+        Button management = findViewById(R.id.management);
+        Button additional = findViewById(R.id.additional);
 
-        //사용자가 입력한 시리얼 번호 표시
-        currDevice.setText(deviceText);
+        //제목 표시
+        userTitle.setText(Objects.requireNonNull(DataBase.Users.get(currentUser)).UserTitle);
         
         //뒤로 가기 버튼
         backBtn.setOnClickListener(view -> {
             running = false;
-            newData = "0";
-            currentData = "-1";
+            WaterLevel = 0;
             setContentView(R.layout.activity_connect);
             ConnectScreenSetting();
             for (short i = 0; i < clients.size(); i++) {
@@ -150,38 +147,48 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         
-        //현재상황 버튼
+        //안전진단 버튼
         currStatus.setOnClickListener(
             view -> startActivity(new Intent(MainActivity.this, CurrentStatus.class))
         );
         
-        //추가정보기입 버튼
-        addition.setOnClickListener(
+        //제품 관리 버튼
+        management.setOnClickListener(
             view -> startActivity(new Intent(MainActivity.this, AdditionalInformation.class))
         );
 
-        //기타정보 버튼
-        information.setOnClickListener(
+        //추가 정보 버튼
+        additional.setOnClickListener(
             view -> startActivity(new Intent(MainActivity.this, ExtraInformation.class))
         );
 
         //값 받았을 때
         for (short i = 0; i < clients.size(); i++) {
             clients.get(i).toAsync().publishes(ALL, publish -> {
-                newData = UTF_8.decode(publish.getPayload().get()).toString();
+                WaterLevel = Short.parseShort(UTF_8.decode(publish.getPayload().get()).toString());
             });
         }
 
-        //수위 표시 업데이트
+        //기능 수행
         running = true;
         Thread thread = new Thread(() -> {
             while (running){
                 try {
-                    if (!newData.equals(currentData)){
-                        currentData = newData;
-                        waterLevelText = currentData + "cm";
-                        handler.post(() -> waterLevel.setText(waterLevelText));
-                    }
+                    handler.post(() -> {
+                        //현재 안전레벨 업데이트
+                        if (WaterLevel > 30) {
+                            curSfLv.setText("현재 안전레벨: 대피");
+                        }
+                        else if (WaterLevel > 0) {
+                            curSfLv.setText("현재 안전레벨: 위험");
+                        }
+                        else {
+                            curSfLv.setText("현재 안전레벨: 안전");
+                        }
+
+                        //위험구역 업데이트
+
+                    });
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
