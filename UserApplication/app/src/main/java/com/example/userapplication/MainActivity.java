@@ -8,7 +8,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import com.example.userapplication.database.DataBase;
-import com.example.userapplication.database.UserTable;
 import com.hivemq.client.mqtt.MqttClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -17,10 +16,13 @@ import java.util.LinkedList;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
-    public static short WaterLevel = 0;
-    private final Handler handler = new Handler();
+    public static LinkedList<Short> WaterLevel = new LinkedList<>();
+    public static String CurrentUser;
+    public static String SafeLevel = "현재 안전레벨: 안전";
+    public static String DangerousArea = "없음";
     private final LinkedList<Mqtt5BlockingClient> clients = new LinkedList<>();
-    private String currentUser;
+    private final Handler handler = new Handler();
+    private short currentSafeLevel = 0;
     private boolean running = true;
 
     @Override
@@ -54,14 +56,14 @@ public class MainActivity extends AppCompatActivity {
         //버튼 클릭 시
         connectBtn.setOnClickListener(view -> {
             //사용자가 입력한 아이디
-            currentUser = userId.getText().toString();
+            CurrentUser = userId.getText().toString();
             
             //존재하는 아이디인 경우
-            if (DataBase.Users.containsKey(currentUser)) {
+            if (DataBase.Users.containsKey(CurrentUser)) {
                 //비밀번호 일치할 경우
-                if (passWord.getText().toString().equals(Objects.requireNonNull(DataBase.Users.get(currentUser)).Password)) {
+                if (passWord.getText().toString().equals(Objects.requireNonNull(DataBase.Users.get(CurrentUser)).Password)) {
                     statusText.setText("연결 중.");
-                    Connecting(statusText, Objects.requireNonNull(DataBase.Users.get(currentUser)).Devices);
+                    Connecting(statusText, Objects.requireNonNull(DataBase.Users.get(CurrentUser)).Devices);
                 }
                 //비밀번호가 틀릴 경우
                 else {
@@ -82,6 +84,9 @@ public class MainActivity extends AppCompatActivity {
         try {
             handler.postDelayed(() -> {
                 for (short i = 0; i < topic.size(); i++) {
+                    //수위 정보 리스트 추가
+                    WaterLevel.add((short) 0);
+                    
                     //Mqtt 클라이언트 객체 생성
                     clients.add(MqttClient.builder()
                             .useMqttVersion5()
@@ -134,22 +139,23 @@ public class MainActivity extends AppCompatActivity {
         Button additional = findViewById(R.id.additional);
 
         //제목 표시
-        userTitle.setText(Objects.requireNonNull(DataBase.Users.get(currentUser)).UserTitle);
+        userTitle.setText(Objects.requireNonNull(DataBase.Users.get(CurrentUser)).UserTitle);
         
         //뒤로 가기 버튼
         backBtn.setOnClickListener(view -> {
             running = false;
-            WaterLevel = 0;
             setContentView(R.layout.activity_connect);
             ConnectScreenSetting();
             for (short i = 0; i < clients.size(); i++) {
                 clients.get(i).disconnect();
             }
+            WaterLevel.clear();
+            clients.clear();
         });
         
         //안전진단 버튼
         currStatus.setOnClickListener(
-            view -> startActivity(new Intent(MainActivity.this, CurrentStatus.class))
+            view -> startActivity(new Intent(MainActivity.this, CurrentStatusActivity.class))
         );
         
         //제품 관리 버튼
@@ -164,8 +170,9 @@ public class MainActivity extends AppCompatActivity {
 
         //값 받았을 때
         for (short i = 0; i < clients.size(); i++) {
+            short finalI = i;
             clients.get(i).toAsync().publishes(ALL, publish -> {
-                WaterLevel = Short.parseShort(UTF_8.decode(publish.getPayload().get()).toString());
+                WaterLevel.set(finalI, Short.parseShort(UTF_8.decode(publish.getPayload().get()).toString()));
             });
         }
 
@@ -175,15 +182,35 @@ public class MainActivity extends AppCompatActivity {
             while (running){
                 try {
                     handler.post(() -> {
-                        //현재 안전레벨 업데이트
-                        if (WaterLevel > 30) {
-                            curSfLv.setText("현재 안전레벨: 대피");
+                        short newLevel = 0;
+                        //현재 안전레벨 확인
+                        for (short i = 0; i < WaterLevel.size(); i++) {
+                            if (WaterLevel.get(i) > 30) {
+                                newLevel = 1;
+                                break;
+                            }
+                            else if (WaterLevel.get(i) > 0) {
+                                newLevel = 2;
+                                break;
+                            }
                         }
-                        else if (WaterLevel > 0) {
-                            curSfLv.setText("현재 안전레벨: 위험");
-                        }
-                        else {
-                            curSfLv.setText("현재 안전레벨: 안전");
+                        //현재 안전레벨 텍스트 업데이트
+                        if (currentSafeLevel != newLevel) {
+                            currentSafeLevel = newLevel;
+                            switch (currentSafeLevel) {
+                                case 0:
+                                    SafeLevel = "현재 안전레벨: 안전";
+                                    break;
+                                case 1:
+                                    SafeLevel = "현재 안전레벨: 대피";
+                                    break;
+                                case 2:
+                                    SafeLevel = "현재 안전레벨: 위험";
+                                    break;
+                                default:
+                                    break;
+                            }
+                            curSfLv.setText(SafeLevel);
                         }
 
                         //위험구역 업데이트

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backGround"
+    tools:context=".CurrentStatusActivity"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/userTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center_horizontal"
+        android:textAlignment="center"
+        android:textColor="@color/textColour"
+        android:textSize="@string/textSize" />
+
+    <TextView
+        android:id="@+id/activityTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/currStatus"
+        android:textColor="@color/textColour"
+        android:textSize="@string/textSize"
+        android:textAlignment="center" />
+
+    <TextView
+        android:id="@+id/curSfLv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:textColor="@color/textColour"
+        android:textSize="@string/textSize"/>
+
+    <TextView
+        android:id="@+id/danArea"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:textAlignment="center"
+        android:textColor="@color/textColour"
+        android:textSize="@string/textSize"/>
+
+</LinearLayout>
