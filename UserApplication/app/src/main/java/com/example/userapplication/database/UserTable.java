@@ -4,11 +4,11 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 public class UserTable {
+    public LinkedList<DeviceInfo> Devices = new LinkedList<>();
     public String Password;
     public String UserTitle;
-    public LinkedList<String> Devices = new LinkedList<>();
 
-    public UserTable(String password, String userTitle, String[] devices) {
+    public UserTable(String password, String userTitle, DeviceInfo[] devices) {
         Password = password;
         UserTitle = userTitle;
         Collections.addAll(Devices, devices);

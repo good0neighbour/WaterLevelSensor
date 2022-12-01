@@ -2,8 +2,11 @@
     <!-- 어플리케이션 이름 -->
     <string name="app_name">아모르 경보시스템</string>
 
-    <!-- 일반 -->
-    <string name="textSize">25sp</string>
+    <!-- 기본값 -->
+    <string name="main_safeLevel">현재 안전레벨: 안전</string>
+    <string name="main_area">위험 구역: 없음</string>
+    <string name="sensor_status">- 현재상태: 안전</string>
+    <string name="sensor_waterLevel">- 수위: 0cm</string>
 
     <!-- 연결 화면 -->
     <string name="userId">아이디</string>

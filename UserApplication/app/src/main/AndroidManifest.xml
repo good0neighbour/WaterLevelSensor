@@ -15,6 +15,20 @@
         android:theme="@style/Theme.UserApplication"
         tools:targetApi="31">
         <activity
+            android:name=".AdditionalInfomationActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".ManagementActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".CurrentStatusActivity"
             android:exported="false">
             <meta-data

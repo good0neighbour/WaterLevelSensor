@@ -15,7 +15,7 @@
         android:background="@color/invisible"
         android:text="@string/backBtn"
         android:textAlignment="textStart"
-        android:textSize="@string/textSize" />
+        android:textSize="25sp" />
 
     <TextView
         android:id="@+id/userTitle"
@@ -25,7 +25,7 @@
         android:layout_gravity="center_horizontal"
         android:textAlignment="center"
         android:textColor="@color/textColour"
-        android:textSize="@string/textSize" />
+        android:textSize="25sp" />
 
     <Button
         android:id="@+id/currStatus"
@@ -35,23 +35,25 @@
         android:layout_marginHorizontal="100dp"
         android:backgroundTint="@color/purple_200"
         android:text="@string/currStatus"
-        android:textSize="@string/textSize" />
+        android:textSize="25sp" />
 
     <TextView
         android:id="@+id/curSfLv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAlignment="center"
+        android:text="@string/main_safeLevel"
         android:textColor="@color/textColour"
-        android:textSize="@string/textSize" />
+        android:textSize="25sp" />
 
     <TextView
         android:id="@+id/danArea"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="@string/main_area"
         android:textAlignment="center"
         android:textColor="@color/textColour"
-        android:textSize="@string/textSize" />
+        android:textSize="25sp" />
 
     <Button
         android:id="@+id/management"
@@ -61,7 +63,7 @@
         android:layout_marginHorizontal="100dp"
         android:backgroundTint="@color/purple_200"
         android:text="@string/management"
-        android:textSize="@string/textSize" />
+        android:textSize="25sp" />
 
     <Button
         android:id="@+id/additional"
@@ -71,6 +73,6 @@
         android:layout_marginHorizontal="100dp"
         android:backgroundTint="@color/purple_200"
         android:text="@string/additional"
-        android:textSize="@string/textSize" />
+        android:textSize="25sp" />
 
 </LinearLayout>
