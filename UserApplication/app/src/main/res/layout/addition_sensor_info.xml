@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backGround"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/topic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="50dp"
+        android:layout_marginTop="40dp"
+        android:importantForAutofill="no"
+        android:backgroundTint="@color/white"
+        android:inputType="text"
+        android:textColor="@color/textColour"
+        android:textColorHint="@color/textColour"
+        android:textSize="30sp"
+        tools:ignore="LabelFor" />
+
+    <EditText
+        android:id="@+id/location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="50dp"
+        android:layout_marginTop="10dp"
+        android:importantForAutofill="no"
+        android:backgroundTint="@color/white"
+        android:inputType="text"
+        android:textColor="@color/textColour"
+        android:textColorHint="@color/textColour"
+        android:textSize="30sp"
+        tools:ignore="LabelFor" />
+
+</LinearLayout>

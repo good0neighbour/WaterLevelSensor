@@ -12,8 +12,8 @@ public class DataBase {
                         "amor2022",
                         "00건물 안전관리 시스템",
                         new DeviceInfo[] {
-                                new DeviceInfo("경보기1", "위치1", "test0"),
-                                new DeviceInfo("경보기2", "위치2", "test1")
+                                new DeviceInfo("위치0", "test0"),
+                                new DeviceInfo("위치1", "test1")
                         }
                 )
         );

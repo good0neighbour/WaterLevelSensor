@@ -1,23 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/backGround"
-    tools:context=".MainActivity"
+    tools:context=".RegisterActivity"
     android:orientation="vertical">
 
+    <TextView
+        android:id="@+id/userTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:layout_gravity="center_horizontal"
+        android:textAlignment="center"
+        android:textColor="@color/textColour"
+        android:textSize="25sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:text="@string/register"
+        android:textColor="@color/textColour"
+        android:textSize="25sp"
+        android:textAlignment="center" />
+
     <EditText
-        android:id="@+id/userId"
+        android:id="@+id/topic"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginHorizontal="50dp"
-        android:layout_marginTop="220dp"
-        android:importantForAutofill="no"
+        android:layout_marginTop="100dp"
+        android:autofillHints="name"
         android:backgroundTint="@color/white"
-        android:hint="@string/userId"
+        android:hint="@string/topic"
         android:inputType="text"
         android:textAlignment="center"
         android:textColor="@color/textColour"
@@ -25,40 +44,30 @@
         android:textSize="30sp" />
 
     <EditText
-        android:id="@+id/passWord"
-        android:inputType="textPassword"
+        android:id="@+id/location"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginHorizontal="50dp"
         android:layout_marginTop="20dp"
+        android:autofillHints="name"
         android:backgroundTint="@color/white"
-        android:autofillHints="password"
-        android:hint="@string/passWord"
+        android:hint="@string/location"
+        android:inputType="text"
         android:textAlignment="center"
         android:textColor="@color/textColour"
         android:textColorHint="@color/textColour"
         android:textSize="30sp" />
 
     <Button
-        android:id="@+id/connectBtn"
+        android:id="@+id/registerBtn"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_marginHorizontal="120dp"
         android:layout_marginTop="50dp"
-        android:text="@string/connectBtn"
-        android:textColor="@color/textColour"
+        android:text="@string/registerBtn"
+        android:textColor="@color/white"
         android:textSize="25sp"
         android:backgroundTint="@color/purple_200" />
-
-    <TextView
-        android:id="@+id/statusText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:textAlignment="center"
-        android:textColor="@color/textColour"
-        android:textSize="15sp"
-        app:layout_constraintHorizontal_bias="0.0" />
 
 </LinearLayout>
