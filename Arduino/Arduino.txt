@@ -1,33 +1,56 @@
-#include <SoftwareSerial.h>
+//헤더 파일 포함
+#include <ESP8266WiFi.h>
+#include <PubSubClient.h>
+#include <time.h>
+#include <TZ.h>
+#include <FS.h>
+#include <LittleFS.h>
+#include <CertStoreBearSSL.h>
+
 
 /* ==================== 상수 설정 ==================== */
-//입출력
+//제품 시리얼 번호
+const String topic = "test0";
+
+//입출력(초음파센서, 빗물감지센서, 와이파이 모듈)
 #define BT_RXD 4
 #define BT_TXD 5
-short const trig = 2;
-short const echo = 3;
-short const rainingPin = A1;
+const short trig = 2;
+const short echo = 3;
+const short rainingPin = A1;
 
 //전원
-short const lvSensor = 8;
-short const rainSensor = 9;
+const short lvSensor = 8;
+const short rainSensor = 9;
+
+//네트워크
+#define MSG_BUFFER_SIZE (2)
+const char* ssid = "wifi_name";
+const char* password = "wifi_password";
+const char* mqtt_server = "1befe1d1899b49688347a6c39ec340ea.s2.eu.hivemq.cloud";
 
 //반복 속도
-short const loopDelay = 500;
+const short loopDelay = 1000;
 
 
 /* ==================== 변수 선언 ==================== */
 bool isWater = false;
 long initialDistance;
-SoftwareSerial ESP_wifi(BT_RXD, BT_TXD);
+unsigned long lastMsg = 0;
+char msg[MSG_BUFFER_SIZE];
+int value = 0;
+BearSSL::CertStore certStore;
+WiFiClientSecure espClient;
+PubSubClient* client;
 
 
 /* ==================== 초기화 함수 ==================== */
-void setup(){
+void setup() {
   //초기화
   Serial.begin(9600);
   pinMode(trig, OUTPUT);
   pinMode(echo, INPUT);
+  LittleFS.begin();
 
   //전원 초기화
   pinMode(lvSensor, OUTPUT);
@@ -35,42 +58,48 @@ void setup(){
 
   //초기 거리 측정
   digitalWrite(lvSensor, HIGH);
-  do{
+  do {
     delay(loopDelay);
     initialDistance = getDistance(true);
-  }while(initialDistance < 1);
+  } while (initialDistance < 1);
   digitalWrite(lvSensor, LOW);
+
+  //와이파이 연결
+  setup_wifi();
+  int numCerts = certStore.initCertStore(LittleFS, PSTR("/certs.idx"), PSTR("/certs.ar"));
+  if (numCerts == 0) {
+    //연결 실패
+    Serial.printf("No certs found. Did you run certs-from-mozilla.py and upload the LittleFS directory before running?\n");
+    return;
+  }
+  BearSSL::WiFiClientSecure *bear = new BearSSL::WiFiClientSecure();
+  bear->setCertStore(&certStore);
+
+  //MQTT 서버 연결
+  client = new PubSubClient(*bear);
+  client->setServer(mqtt_server, 8883);
+  brokerConnect();
 
   //전원 공급
   digitalWrite(rainSensor, HIGH);
-
-  //초기 거리 출력
-  Serial.print("Initial Distance: ");
-  Serial.println(initialDistance);
-
-  //와이파이 모듈 초기화
-  ESP_wifi.begin(9600);
-  ESP_wifi.setTimeout(5000);
 }
 
 
 /* ==================== 반복 함수 ==================== */
-void loop(){
+void loop() {
   long distance = 0;
+
+  client->loop();
 
   //반복 속도 조절
   delay(loopDelay);
 
   //수위 및 물 감지
-  if(isWater){
+  if (isWater) {
     distance = getDistance(false);
-    Serial.print("\nWater detected : ");
-    Serial.print(isWater);
-    wifi();
   }
-  else{
+  else {
     isWater = waterDetect();
-    Serial.println("not watwer");
     return;
   }
 
@@ -80,15 +109,14 @@ void loop(){
 
 
 /* ==================== 정보 전송 ==================== */
-void sendData(long level){
-  Serial.print("\ndistance : ");
-  Serial.print(level);
-  Serial.print("cm");
+inline void sendData(long level) {
+  snprintf (msg, MSG_BUFFER_SIZE, "%ld", level);
+  client->publish("WtLvSn/" + topic, msg);
 }
 
 
 /* ==================== 수위 측정 ==================== */
-long getDistance(bool initial){
+inline long getDistance(bool initial) {
   unsigned long duration;
 
   //초음파 발생
@@ -100,17 +128,17 @@ long getDistance(bool initial){
   duration = pulseIn(echo, HIGH);
 
   //반환
-  if(initial){
+  if (initial) {
     return (long)(duration * 0.017);
   }
-  else{
+  else {
     return (long)(initialDistance - duration * 0.017);
   }
 }
 
 
 /* ==================== 물 감지 ==================== */
-bool waterDetect(){
+inline bool waterDetect() {
   if (analogRead(rainingPin) < 500){
     digitalWrite(rainSensor, LOW);
     digitalWrite(lvSensor, HIGH);
@@ -122,12 +150,25 @@ bool waterDetect(){
 }
 
 
-/* ==================== 와이파이 ==================== */
-void wifi(){
-  if (Serial.available()){
-    ESP_wifi.write(Serial.read());
+/* ==================== 와이파이 연결 ==================== */
+inline void setup_wifi() {
+  //연결 시작
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+
+  //연결될 때까지 대기
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
   }
-  if (ESP_wifi.available()){
-    Serial.write(ESP_wifi.read());
+}
+
+/* ==================== MQTT 서버 연결 ==================== */
+inline void brokerConnect() {
+  String clientId = "ESP8266Client - MyClient";
+  while (!client->connected()) {
+    if (client->connect(clientId.c_str(), "amor2022", "PASSWORD")) {
+      return;
+    }
+    delay(5000);
   }
 }
