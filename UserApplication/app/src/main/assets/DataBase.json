@@ -1,0 +1,12 @@
+{
+  "DeviceInfo" : [
+    {
+      "topic" : "우정당1",
+      "location" : "1층 출입구"
+    },
+    {
+      "topic" : "우정당2",
+      "location" : "내부 공간"
+    }
+  ]
+}
