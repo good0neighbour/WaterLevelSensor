@@ -39,4 +39,7 @@
 
     <!-- 제품 수정 화면 -->
     <string name="adoptBtn">적용</string>
+
+    <!-- 제품 삭제 화면 -->
+    <string name="deleteBtn">삭제</string>
 </resources>
