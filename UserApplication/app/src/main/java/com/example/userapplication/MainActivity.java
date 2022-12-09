@@ -8,10 +8,20 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import com.example.userapplication.database.DataBase;
+import com.example.userapplication.database.DeviceInfo;
 import com.hivemq.client.mqtt.MqttClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static com.hivemq.client.mqtt.MqttGlobalPublishFilter.ALL;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.Objects;
 
@@ -124,6 +134,9 @@ public class MainActivity extends AppCompatActivity {
                 .send();
     }
 
+    /**
+     * 경보기 정보 수정 시 호출
+     */
     public void Reconnect() {
         for (short i = 0; i < clients.size(); i++) {
             clients.get(i).disconnect();
@@ -136,8 +149,66 @@ public class MainActivity extends AppCompatActivity {
         SetOnReceive();
     }
 
+    /**
+     * 제목 업데이트
+     */
     public void UserTitleUpdate() {
         userTitle.setText(Objects.requireNonNull(DataBase.Users.get(currentUser)).UserTitle);
+    }
+
+    public DeviceInfo[] LoadJson() {
+        try {
+            //json 파일 불러오기
+            InputStream is = getAssets().open("DataBase.json");
+            byte[] buffer = new byte[is.available()];
+            is.read(buffer);
+            is.close();
+            String json = new String(buffer, UTF_8);
+
+            //DeviceInfo 가져오기
+            JSONArray deviceArray = new JSONObject(json).getJSONArray("DeviceInfo");
+
+            //DeviceInfo 배열 생성
+            short deviceLength = (short)deviceArray.length();
+            DeviceInfo[] deviceInfo = new DeviceInfo[deviceLength];
+
+            //DeviceInfo 배열 저장
+            for (short j = 0; j < deviceLength; j++) {
+                //json 오브젝트 생성
+                JSONObject deviceObject = deviceArray.getJSONObject(j);
+
+                //DeviceInfo 생성
+                deviceInfo[j] = new DeviceInfo(deviceObject.getString("location"), deviceObject.getString("topic"));
+            }
+
+            //반환
+            return deviceInfo;
+
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public void SaveJson() {
+        File saveFile = new File("/main/assets/.DataBase.json");
+        JSONArray deviceArray = new JSONArray();
+        try {
+            for (short i = 0; i < Objects.requireNonNull(DataBase.Users.get(MainActivity.Instance.GetCurrentUser())).Devices.size(); i++) {
+                JSONObject deviceObject = new JSONObject();
+                deviceObject.put("topic", Objects.requireNonNull(DataBase.Users.get(MainActivity.Instance.GetCurrentUser())).Devices.get(i).Topic);
+                deviceObject.put("location", Objects.requireNonNull(DataBase.Users.get(MainActivity.Instance.GetCurrentUser())).Devices.get(i).Location);
+                deviceArray.put(deviceObject);
+            }
+            JSONObject deviceObject = new JSONObject();
+            deviceObject.put("DeviceInfo", deviceArray);
+            BufferedWriter bfw = new BufferedWriter(new FileWriter("/main/assets/.DataBase.json"));
+            bfw.write(deviceArray.toString());
+            bfw.flush();
+            bfw.close();
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+        }
     }
 
 

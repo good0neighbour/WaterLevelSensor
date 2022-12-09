@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import com.example.userapplication.database.DataBase;
 import java.util.LinkedList;
 import java.util.Objects;
