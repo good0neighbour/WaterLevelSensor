@@ -16,7 +16,6 @@ import static com.hivemq.client.mqtt.MqttGlobalPublishFilter.ALL;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
