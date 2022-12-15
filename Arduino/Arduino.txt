@@ -13,8 +13,6 @@
 const String topic = "test0";
 
 //입출력(초음파센서, 빗물감지센서, 와이파이 모듈)
-#define BT_RXD 4
-#define BT_TXD 5
 const short trig = 2;
 const short echo = 3;
 const short rainingPin = A1;
@@ -167,7 +165,7 @@ inline void brokerConnect() {
   String clientId = "ESP8266Client - MyClient";
   while (!client->connected()) {
     if (client->connect(clientId.c_str(), "amor2022", "PASSWORD")) {
-      return;
+      break;
     }
     delay(5000);
   }
